@@ -1,5 +1,6 @@
 import React from 'react'
 import { Input, Menu, Segment } from 'semantic-ui-react'
+import Clock from './Clock'
 import Logo from './Logo'
 
 const Masthead = props => {
@@ -19,6 +20,7 @@ const Masthead = props => {
                     <Logo inverted/>
                 </Menu.Item>
                 <Menu.Menu position="right">
+                    <Menu.Item><Clock /></Menu.Item>
                     <Menu.Item>
                         <strong style={{whiteSpace:'nowrap', marginRight:'1em'}}>User Key:</strong>
                         <Input inverted placeholder="User Key" onChange={ evChangeUserkey } value={userkey} />
