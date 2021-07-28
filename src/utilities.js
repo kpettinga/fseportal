@@ -1,3 +1,25 @@
+export const get = (url, params) => {
+    return fetch(url, params).then( res => res.json() )
+}
+
+/**
+ * Serialize a plain object into a url-encoded string
+ * @param {Object} obj
+ */
+ export const serializeObject = (obj) =>  {
+
+	// Setup our serialized data
+	var serialized = [];
+
+	// Loop through each field in the obj
+    Object.keys(obj).forEach( key => {
+        serialized.push(encodeURIComponent(key) + '=' + encodeURIComponent(obj[key]))
+    } )
+
+	return serialized.join('&');
+
+};
+
 export const formatCurrency = (num) => {
     const formatter = new Intl.NumberFormat('en-US', {
         style: 'currency',

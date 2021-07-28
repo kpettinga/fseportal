@@ -1,24 +1,32 @@
-import { Box, Heading } from 'grommet'
-import { Map } from 'grommet-icons'
 import React from 'react'
+import { Input, Menu, Segment } from 'semantic-ui-react'
+import Logo from './Logo'
 
 const Masthead = props => {
+
+    const { onChangeUserkey, userkey } = props
+
+    const evChangeUserkey = (event, data) => {
+        if ( typeof onChangeUserkey === 'function' ) {
+            onChangeUserkey(data.value)
+        }
+    }
+
     return (
-        <Box
-			tag='header'
-            direction='row'
-            align='center'
-            justify='between'
-            background='brand'
-            pad={{ left: 'medium', right: 'small', vertical: 'medium' }}
-            elevation='medium'
-            style={{ zIndex: '1' }}
-        >
-            <Box direction="row" align="center">
-                <Map style={{marginRight:'1em'}} /> 
-                <Heading level="4" style={{margin:0}} >FSE Portal</Heading>
-            </Box>
-        </Box>
+        <Segment basic inverted color="orange" style={{margin:0}}>
+            <Menu borderless secondary inverted>
+                <Menu.Item>
+                    <Logo inverted/>
+                </Menu.Item>
+                <Menu.Menu position="right">
+                    <Menu.Item>
+                        <strong style={{whiteSpace:'nowrap', marginRight:'1em'}}>User Key:</strong>
+                        <Input inverted placeholder="User Key" onChange={ evChangeUserkey } value={userkey} />
+                    </Menu.Item>
+                    <Menu.Item as="a" href="https://server.fseconomy.com" icon="external alternate" content="FSEconomy" />
+                </Menu.Menu>
+            </Menu>
+        </Segment>
     )
 }
 
