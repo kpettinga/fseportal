@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card, Grid, Segment } from 'semantic-ui-react'
+import { Card, Grid, Icon, Segment } from 'semantic-ui-react'
 import { formatCurrency } from './utilities'
 
 const JobsTable = props => {
@@ -10,22 +10,26 @@ const JobsTable = props => {
         <div className="JobsTable">
             <Segment size="mini" inverted>
                 <Grid>
-                    <Grid.Column width={2}><strong>From</strong></Grid.Column>
-                    <Grid.Column width={2}><strong>To</strong></Grid.Column>
-                    <Grid.Column width={6}><strong>Cargo</strong></Grid.Column>
-                    <Grid.Column width={3}><strong>Pay</strong></Grid.Column>
-                    <Grid.Column width={3}><strong>Expires</strong></Grid.Column>
+                    <Grid.Column width={2}><a href="#"><strong>From</strong></a></Grid.Column>
+                    <Grid.Column width={2}><a href="#"><strong>To</strong></a></Grid.Column>
+                    <Grid.Column width={1}><a href="#"><strong>NM</strong></a></Grid.Column>
+                    <Grid.Column width={2}><a href="#"><strong>BRG</strong></a></Grid.Column>
+                    <Grid.Column width={5}><a href="#"><strong>Cargo</strong></a></Grid.Column>
+                    <Grid.Column width={2}><a href="#"><strong>Pay</strong></a></Grid.Column>
+                    <Grid.Column width={2}><a href="#"><strong>Expires</strong></a></Grid.Column>
                 </Grid>
             </Segment>
             { jobs && jobs.map( (job, a) => (
                 <Card as="div" key={a} link fluid onClick={() => onSelect(job)}>
                     <Card.Content>
                         <Grid>
-                            <Grid.Column width={2}>{job.FromIcao}</Grid.Column>
-                            <Grid.Column width={2}>{job.ToIcao}</Grid.Column>
-                            <Grid.Column width={6}>{job.Amount + ' ' + job.Commodity}</Grid.Column>
-                            <Grid.Column width={3}>{formatCurrency(job.Pay)}</Grid.Column>
-                            <Grid.Column width={3}>{job.Expires}</Grid.Column>
+                            <Grid.Column width={2}><small><strong>{job.FromIcao}</strong></small></Grid.Column>
+                            <Grid.Column width={2}><small><strong>{job.ToIcao}</strong></small></Grid.Column>
+                            <Grid.Column width={1}><small>{job.distance}</small></Grid.Column>
+                            <Grid.Column width={2} style={{whiteSpace:'nowrap'}}><small><Icon name="location arrow" size="small" style={{transform:`rotate(${job.bearingDegrees}deg)`}}/>{job.bearingCompass}</small></Grid.Column>
+                            <Grid.Column width={5}><small>{job.Amount + ' ' + job.Commodity}</small></Grid.Column>
+                            <Grid.Column width={2}><small><strong>{formatCurrency(job.Pay)}</strong></small></Grid.Column>
+                            <Grid.Column width={2} style={{whiteSpace:'nowrap'}}><small>{job.Expires}</small></Grid.Column>
                         </Grid>
                     </Card.Content>
                 </Card>

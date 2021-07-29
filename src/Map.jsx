@@ -3,7 +3,7 @@ import ReactMapGl, {Marker, Popup, WebMercatorViewport} from 'react-map-gl'
 import { Header, Icon, Label } from 'semantic-ui-react'
 import { point, featureCollection } from '@turf/helpers'
 import bbox from '@turf/bbox'
-import { uniq } from 'lodash'
+import { uniq, uniqBy } from 'lodash'
 import { get } from './utilities'
 
 const mapboxApiAccessToken="pk.eyJ1Ijoia2lya3BldHRpbmdhIiwiYSI6ImFXZTFFRUUifQ.K4Ia5hM1_o8Wogg3_rYovg"
@@ -34,53 +34,32 @@ const Map = props => {
             return;
         }
 
-        let fromAirportIcaos,
-            toAirportIcaos,
-            fromPromises = [],
-            toPromises = [],
-            fromAirports,
-            toAirports,
-            markers
-
-        fromAirportIcaos = jobs.map(job => job.FromIcao)
-        fromAirportIcaos = uniq(fromAirportIcaos)
-        
-        toAirportIcaos = jobs.map(job => job.ToIcao)
-        toAirportIcaos = uniq(toAirportIcaos)
-
-        // get "from" airports
-        fromAirportIcaos.forEach(icao => {
-            fromPromises.push( get(`http://localhost:3001/icaos/${icao}`) )
-        })
-        
-        // get "to" airports
-        toAirportIcaos.forEach(icao => {
-            toPromises.push( get(`http://localhost:3001/icaos/${icao}`) )
-        })
-
-        fromAirports = await Promise.all(fromPromises)
-        toAirports = await Promise.all(toPromises)
-
-
-        fromAirports = fromAirports.map(apt => {
+        let fromMarkers = jobs.map(job => {
 			return {
-				...apt,
-				title: apt.icao,
-				description: apt.name,
+				...job,
+				title: job.FromIcao,
+				description: `${job.FromAirport.name} (${job.distance}nm)`,
+                lon: job.FromAirport.lon,
+                lat: job.FromAirport.lat,
 				label: { icon: 'plane', color: 'orange' },
 			}
 		})
-        toAirports = toAirports.map(airport => {
+        fromMarkers = uniqBy(fromMarkers, 'title')
+
+        let toMarkers = jobs.map(job => {
             return {
-                ...airport,
-                title: airport.icao,
-                description: airport.name,
+                ...job,
+                title: job.ToIcao,
+                description: `${job.ToAirport.name} (${job.distance}nm)`,
+                lon: job.ToAirport.lon,
+                lat: job.ToAirport.lat,
                 label: { circular: true, icon: 'map marker alternate', color: 'blue', size: 'mini' },
             }
         })
+        toMarkers = uniqBy(toMarkers, 'title')
 
 		// set markers
-        markers = [...toAirports, ...fromAirports]
+        const markers = [...toMarkers, ...fromMarkers]
 		setMarkers(markers)
 
 		// fit the map to relevant data

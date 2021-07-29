@@ -1,3 +1,13 @@
+export const getNauticalMiles = (distance, units, decimals) => {
+    units = units || 'kilometers'
+    decimals = decimals || 0
+    const conversions = {
+        miles: 0.868976,
+        kilometers: 0.5399566531479482
+    }
+    return parseInt((parseFloat(distance) * conversions[units]).toFixed(decimals))
+}
+
 export const get = (url, params) => {
     return fetch(url, params).then( res => res.json() )
 }

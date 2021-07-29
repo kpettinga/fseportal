@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { Input, Menu, Segment } from 'semantic-ui-react'
 import Clock from './Clock'
 import Logo from './Logo'
@@ -16,7 +17,7 @@ const Masthead = props => {
     return (
         <Segment basic inverted color="orange" style={{margin:0}}>
             <Menu borderless secondary inverted>
-                <Menu.Item>
+                <Menu.Item as={Link} to="/">
                     <Logo inverted/>
                 </Menu.Item>
                 <Menu.Menu position="right">
