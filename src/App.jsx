@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Masthead from './Masthead'
 import { Grid, Menu, Segment } from 'semantic-ui-react'
-import './css/semantic.twitter.min.css'
+import './css/semantic.flat.min.css'
 import 'mapbox-gl/dist/mapbox-gl.css';
 import UserKeyForm from './UserKeyForm'
 import Map from './Map'
