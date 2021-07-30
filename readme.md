@@ -1,1 +1,1 @@
-![FSE Portal](https://github.com/kpettinga/fseportal/blob/master/screenshot.png?raw=true)
+![FSE Portal](https://github.com/kpettinga/fseportal/blob/master/assets/images/screenshot.png?raw=true)
