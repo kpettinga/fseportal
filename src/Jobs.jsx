@@ -1,30 +1,45 @@
 import { uniq } from 'lodash-es'
-import React, { useState } from 'react'
-import { Button, Checkbox, Dropdown, Grid, GridColumn, Header, Input, Modal, Segment } from 'semantic-ui-react'
+import React, { useEffect, useState } from 'react'
+import { Button, Checkbox, Header, Input, Message, Modal, Segment } from 'semantic-ui-react'
 import JobsTable from './JobsTable'
 import {csvToJson, get, getNauticalMiles, serializeObject} from './utilities'
 import { distance as turfDistance, point as turfPoint, bearing as turfBearing } from '@turf/turf'
+import { useParams } from 'react-router-dom'
 
 const Jobs = props => {
 
-    const { jobs, onUpdateJobs, userkey } = props
+    const { jobs, onUpdateJobs } = props
+    const {icaos: paramIcaos} = useParams()
 
     const [loading, setLoading] = useState(false)
     const [search, setSearch] = useState('jobsfrom')
-	const [icaos, setIcaos] = useState('')
+	const [icaos, setIcaos] = useState(paramIcaos)
     const [selectedJob, setSelectedJob] = useState(null)
+    const [error, setError] = useState(false)
 
-    const getAssignments = async (params) => {
+    useEffect(() => {
+        if ( paramIcaos ) {
+            getAssignments(paramIcaos, search)
+        }
+    }, [])
+
+    async function getAssignments(icaos, search) {
 
 		setLoading(true)
 
-        const format = 'csv'
-	    const query = 'icao'
-        params = {...params, format, query}
+        const params = {
+            icaos, 
+            search, 
+            format: 'csv',
+            query: 'icao',
+            userkey: window.localStorage.getItem('fseUserkey')
+        }
 		
 		const url = `https://server.fseconomy.net/data?${serializeObject(params)}`
 		
-        const jobsCsv = await fetch(url).then(res => res.text())
+        const jobsCsv = await fetch(url)
+            .then(res => res.text())
+            .catch(err => setError(err))
 
         let jobsJson = __cleanData(csvToJson(jobsCsv)),
             fromAirportIcaos,
@@ -88,9 +103,8 @@ const Jobs = props => {
 		}
 	}
 
-    const onSearch = async () => {
+    async function onSearch() {
         getAssignments({
-            userkey,
             search,
             icaos,
         })
@@ -104,6 +118,7 @@ const Jobs = props => {
             fluid
             type="text"
             control="input"
+            value={icaos}
             placeholder={`KORD  -or-  KORD-KLGA-KJFK`}
             onChange={(ev, data) => setIcaos(data.value)}
             />
@@ -142,7 +157,11 @@ const Jobs = props => {
             </Segment>
         </>}
         
-        { jobs && 
+        { error && 
+            <Message negative>{error}</Message>
+        }
+
+        { jobs && ! error &&
             <JobsTable 
                 jobs={jobs} 
                 onSelect={ job => setSelectedJob(job) }

@@ -1,17 +1,15 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import Masthead from './Masthead'
 import { Grid, Menu, Segment } from 'semantic-ui-react'
 import './css/semantic.flat.min.css'
 import './css/main.css'
 import 'mapbox-gl/dist/mapbox-gl.css';
-import UserKeyForm from './UserKeyForm'
 import Map from './Map'
 import Jobs from './Jobs'
 import {
 	Switch,
 	Route,
 	Link,
-	Redirect,
 	useLocation
   } from "react-router-dom";
 import Airports from './Airports';
@@ -25,28 +23,12 @@ const appStyle = {
 
 function App() {
 	const [jobs, setJobs] = useState(null)
-	const [userkey, setUserkey] = useState('')
 	const location = useLocation()
-
-	useEffect(() => {
-		const existingKey = window.localStorage.getItem('fseUserkey')
-		if ( ! userkey && existingKey ) {
-			setUserkey(existingKey)
-		}
-	}, [])
-
-	useEffect(() => {
-		window.localStorage.setItem('fseUserkey', userkey)
-	}, [userkey])
-
-	
 
 	return (
 		<div className="App" style={appStyle}>
-			<Masthead 
-				userkey={userkey}
-				onChangeUserkey={ key => setUserkey(key) }
-				/>
+			
+			<Masthead />
 
 			<Segment basic vertical 
 				style={{margin:0, padding:0, height:'calc(100% - 72px)'}}
@@ -63,9 +45,8 @@ function App() {
 						</Menu>
 
 						<Switch>
-							<Route path="/jobs">
+							<Route path="/jobs/:icaos">
 								<Jobs
-									userkey={userkey} 
 									jobs={jobs}
 									onUpdateJobs={setJobs}
 									/>
@@ -77,7 +58,10 @@ function App() {
 								{`Coming soon...`}
 							</Route>
 							<Route>
-								<Redirect to="/jobs" />
+								<Jobs
+									jobs={jobs}
+									onUpdateJobs={setJobs}
+									/>
 							</Route>
 						</Switch>
 
@@ -90,8 +74,6 @@ function App() {
 				</Grid>
 				
 			</Segment>
-
-			<UserKeyForm open={!userkey} onSubmit={key => setUserkey(key)} />
 
 		</div>
 	)

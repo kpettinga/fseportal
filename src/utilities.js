@@ -1,3 +1,30 @@
+/**
+ * Pause code execution for a specified amount of time
+ * @param {Number} ms : milliseconds to wait
+ */
+export const wait = (ms) => {
+    var d = new Date();
+    var d2 = null;
+    do { d2 = new Date(); }
+    while(d2-d < ms);
+}
+
+/**
+ * Get the URL query parameters as an object
+ * @returns {object}
+ */
+ export const getQueryObject = (search) => {
+    search = search || window.location.search
+	const queryParams = search.length ? search.substr(1).split('&') : []
+	let o = {}
+	queryParams.forEach( param => {
+		const key = param.split('=')[0]
+		const value = param.split('=')[1]
+		o[key] = decodeURIComponent(value)
+	} )
+	return o
+}
+
 export const getNauticalMiles = (distance, units, decimals) => {
     units = units || 'kilometers'
     decimals = decimals || 0
