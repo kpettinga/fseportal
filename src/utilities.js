@@ -36,7 +36,9 @@ export const getNauticalMiles = (distance, units, decimals) => {
 }
 
 export const get = (url, params) => {
-    return fetch(url, params).then( res => res.json() )
+    return fetch(url, params)
+        .then( res => res.json() )
+        .catch( err => console.error(err) )
 }
 
 /**

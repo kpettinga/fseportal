@@ -1,15 +1,16 @@
 import { uniq } from 'lodash-es'
 import React, { useEffect, useState } from 'react'
-import { Button, Checkbox, Header, Input, Message, Modal, Segment } from 'semantic-ui-react'
+import { Button, Checkbox, Divider, Grid, Header, Icon, Input, Message, Modal, Segment } from 'semantic-ui-react'
 import JobsTable from './JobsTable'
 import {csvToJson, get, getNauticalMiles, serializeObject} from './utilities'
 import { distance as turfDistance, point as turfPoint, bearing as turfBearing } from '@turf/turf'
-import { useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 
 const Jobs = props => {
 
     const { jobs, onUpdateJobs } = props
     const {icaos: paramIcaos} = useParams()
+    const location = useLocation()
 
     const [loading, setLoading] = useState(false)
     const [search, setSearch] = useState('jobsfrom')
@@ -22,6 +23,10 @@ const Jobs = props => {
             getAssignments(paramIcaos, search)
         }
     }, [])
+
+    useEffect(() => {
+        console.log(location.pathname);
+    }, [location.pathname])
 
     async function getAssignments(icaos, search) {
 
@@ -103,13 +108,6 @@ const Jobs = props => {
 		}
 	}
 
-    async function onSearch() {
-        getAssignments({
-            search,
-            icaos,
-        })
-    }
-
     return (
     <div className="Jobs">
 
@@ -122,7 +120,7 @@ const Jobs = props => {
             placeholder={`KORD  -or-  KORD-KLGA-KJFK`}
             onChange={(ev, data) => setIcaos(data.value)}
             />
-        <p className="faded mt_nudge"><small>Find jobs from multiple airports by entering a series of ICAOs, separated by "-"</small></p>
+        <p className="faded mt_nudge"><small><strong>Tip:</strong> Find jobs from multiple airports by entering a series of ICAOs, separated by "-"</small></p>
 
         <div style={{textAlign:'center', marginTop:'2em'}}>
             <Checkbox type="radio"
@@ -147,13 +145,16 @@ const Jobs = props => {
             color="orange"
             icon="search"
             style={{marginTop:'2em'}}
-            onClick={ () => onSearch() }
+            onClick={ () => getAssignments(icaos, search) }
             />
 
         { jobs && <>
-            <Segment basic color="black" size="mini" style={{display:'flex', alignItems:'center'}}>
-                <strong>Found <u>{jobs.length}</u> jobs</strong>
-                <Button size="tiny" content="Filter" icon="filter" color="orange" style={{marginLeft:'auto'}}/>
+            <Segment basic vertical className="my2">
+                <Grid columns={2} verticalAlign="middle">
+                    <Grid.Column><Header>Found <u>{jobs.length}</u> jobs</Header></Grid.Column>
+                    <Grid.Column textAlign="right"><Button basic content="Filter" icon="filter" color="orange" style={{marginLeft:'auto'}}/></Grid.Column>
+                </Grid>
+                <Divider />
             </Segment>
         </>}
         
@@ -170,9 +171,13 @@ const Jobs = props => {
 
         { selectedJob instanceof Object &&
             <Modal open={true} onClose={() => setSelectedJob(null)} closeIcon>
-                <Modal.Header>{`${selectedJob.FromIcao} to ${selectedJob.ToIcao}`}</Modal.Header>
+                <Modal.Header>
+                    <Button circular as={Link} to={`/airports/${selectedJob.FromIcao}`} color="orange" icon="plane" content={selectedJob.FromIcao} />
+                    <small className="faded"> - - - - <Icon name="plane" /> - - - - </small>
+                    <Button circular as={Link} to={`/airports/${selectedJob.ToIcao}`} color="blue" icon="map marker alternate" content={selectedJob.ToIcao} />
+                </Modal.Header>
                 <Modal.Content>
-                    <pre>{JSON.stringify(selectedJob)}</pre>
+                    <pre>{JSON.stringify(selectedJob, null, '\t')}</pre>
                 </Modal.Content>
                 <Modal.Actions>
                     <Button as="a"

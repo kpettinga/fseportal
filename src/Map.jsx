@@ -3,8 +3,7 @@ import ReactMapGl, {Marker, Popup, WebMercatorViewport} from 'react-map-gl'
 import { Header, Icon, Label } from 'semantic-ui-react'
 import { point, featureCollection } from '@turf/helpers'
 import bbox from '@turf/bbox'
-import { uniq, uniqBy } from 'lodash'
-import { get } from './utilities'
+import { uniqBy } from 'lodash'
 
 const mapboxApiAccessToken="pk.eyJ1Ijoia2lya3BldHRpbmdhIiwiYSI6ImFXZTFFRUUifQ.K4Ia5hM1_o8Wogg3_rYovg"
 const mapStyle="mapbox://styles/kirkpettinga/ckf2ex38g065d19o17dnmsot8"

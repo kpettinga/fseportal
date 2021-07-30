@@ -10,7 +10,8 @@ import {
 	Switch,
 	Route,
 	Link,
-	useLocation
+	useLocation,
+	Redirect
   } from "react-router-dom";
 import Airports from './Airports';
 
@@ -38,30 +39,36 @@ function App() {
 					<Grid.Column mobile={16} computer={6} style={{overflow:'auto', height:'100%', paddingBottom:100}}>
 						
 						<Menu secondary pointing widths={4} style={{margin:'0.5em 0 2em'}}>
-							<Menu.Item as={Link} to="/jobs" active={location.pathname === '/jobs'} icon="search" content="Jobs" />
+							<Menu.Item as={Link} to="/jobs" active={location.pathname.indexOf('/jobs') > -1} icon="search" content="Jobs" />
 							{/* <Menu.Item disabled icon="clipboard" content="Flight Planner" /> */}
-							<Menu.Item as={Link} to="/airports" active={location.pathname === '/airports'} icon="plane" content="Airports" />
+							<Menu.Item as={Link} to="/airports" active={location.pathname.indexOf('/airports') > -1} icon="plane" content="Airports" />
 							<Menu.Item as={Link} to="/myfse" active={location.pathname === '/myfse'} icon="user" content="My FSE" />
 						</Menu>
 
 						<Switch>
+							<Route exact path="/jobs">
+								<Jobs
+									jobs={jobs}
+									onUpdateJobs={setJobs}
+									/>
+							</Route>
 							<Route path="/jobs/:icaos">
 								<Jobs
 									jobs={jobs}
 									onUpdateJobs={setJobs}
 									/>
 							</Route>
-							<Route path="/airports">
+							<Route exact path="/airports">
+								<Airports />
+							</Route>
+							<Route exact path="/airports/:icao">
 								<Airports />
 							</Route>
 							<Route path="/myfse">
 								{`Coming soon...`}
 							</Route>
 							<Route>
-								<Jobs
-									jobs={jobs}
-									onUpdateJobs={setJobs}
-									/>
+								<Redirect to="/jobs" />
 							</Route>
 						</Switch>
 

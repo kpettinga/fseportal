@@ -8,7 +8,7 @@ const JobsTable = props => {
 
     return (
         <div className="JobsTable">
-            <Segment size="mini" inverted>
+            <Segment size="mini" color="blue">
                 <Grid>
                     <Grid.Column width={2}><a href="#"><strong>From</strong></a></Grid.Column>
                     <Grid.Column width={2}><a href="#"><strong>To</strong></a></Grid.Column>
