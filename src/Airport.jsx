@@ -60,9 +60,9 @@ const Airport = props => {
             </Grid>
             <Header>Aircraft</Header>
             { aircraft && aircraft.length ? 
-                aircraft.map( a => (
-                    <Segment size="mini" basic vertical color="black">
-                        <strong>{a.MakeModel}</strong> ({a.Registration})
+                aircraft.map( (aircraft,a) => (
+                    <Segment key={a} size="mini" basic vertical color="black">
+                        <strong>{aircraft.MakeModel}</strong> ({aircraft.Registration})
                     </Segment>
                 ) ) 
                 :
@@ -72,14 +72,14 @@ const Airport = props => {
             }
             <Header>FBOs</Header>
             { fbos && fbos.length ? 
-                fbos.map( f => (
-                    <Segment size="mini" basic vertical color="black">
-                        <strong>{f.Name}</strong> ({f.Owner})
+                fbos.map( (fbo,f) => (
+                    <Segment key={f} size="mini" basic vertical color="black">
+                        <strong>{fbo.Name}</strong> ({fbo.Owner})
                     </Segment>
                 ) ) 
                 :
                 <Segment size="mini" basic vertical color="black">
-                    <strong>No aircraft</strong>
+                    <strong>No FBOs</strong>
                 </Segment>
             }
             <Header>Information</Header>

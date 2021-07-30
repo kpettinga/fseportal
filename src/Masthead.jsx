@@ -14,7 +14,7 @@ const Masthead = props => {
     }, [userkey])
 
     return (
-        <Segment basic inverted color="orange" style={{margin:0}}>
+        <Segment basic inverted color="black" style={{margin:0}}>
 
             <Menu borderless secondary inverted>
                 <Menu.Item as={Link} to="/">

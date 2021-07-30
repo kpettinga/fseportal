@@ -1,7 +1,13 @@
+import { 
+    booleanPointInPolygon as turfBooleanPointInPolygon, 
+    circle as turfCircle, 
+    point as turfPoint 
+} from '@turf/turf'
 import React, { useEffect, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
-import { Button, Dropdown, Form, Grid, Header, Input } from 'semantic-ui-react'
+import { Button, Dropdown, Form, Grid, Header, Input, Table } from 'semantic-ui-react'
 import Airport from './Airport'
+import FseTable from './FseTable'
 import { csvToJson, get, serializeObject } from './utilities'
 
 const distances = [
@@ -20,13 +26,14 @@ const Airports = props => {
 
     const [searchBy, setSearchBy] = useState('icao')
     const [icao, setIcao] = useState(paramIcao || '')
-    const [range, setRange] = useState(null)
+    const [range, setRange] = useState(50)
     const [loading, setLoading] = useState(false)
+    const [airports, setAirports] = useState(null)
     const [selectedAirport, setSelectedAirport] = useState(null)
 
     useEffect(() => {
         if ( paramIcao ) {
-            search(paramIcao)
+            getAirport(paramIcao).then( airport => setSelectedAirport(airport) )
         }
     }, [])
 
@@ -34,16 +41,19 @@ const Airports = props => {
         console.log(location.pathname);
     }, [location.pathname])
 
-    async function search(icao) {
+    async function getAirport(icao) {
+        let airport
 
-        setLoading(true)
-
-        // get airport
-        let airport = await get(`http://localhost:3001/icaos/${icao}`)
+        if ( typeof icao === 'string' ) {
+            // get airport
+            airport = await get(`http://localhost:3001/icaos/${icao}`)
+        } else {
+            airport = icao
+        }
 
         // get aircraft
         const params = {
-            icao,  
+            icao: airport.icao,  
             format: 'csv',
             query: 'icao',
             userkey: window.localStorage.getItem('fseUserkey')
@@ -52,32 +62,69 @@ const Airports = props => {
             .then(res => res.text())
             .catch(err => console.error(err))
         let aircraftJson = csvToJson(aircraftCsv)
-        aircraftJson = aircraftJson.filter(a => a.SerialNumber && a.Registration)
+        aircraftJson = aircraftJson.filter(a => a.SerialNumber && a.Registration) // validation
         
         const fbosCsv = await fetch(`https://server.fseconomy.net/data?${serializeObject(params)}&search=fbo`)
             .then(res => res.text())
             .catch(err => console.error(err))
         let fbosJson = csvToJson(fbosCsv)
-        fbosJson = fbosJson.filter(f => f.FboId && f.Location)
+        fbosJson = fbosJson.filter(f => f.FboId && f.Location) // validation
         
-        setSelectedAirport({...airport, aircraft: aircraftJson, fbos: fbosJson})
+        return {
+            ...airport, 
+            aircraft: aircraftJson, 
+            fbos: fbosJson
+        }
+
+    }
+
+    async function getAirportsInRange(icao, range) {
+        let promises = []
+
+        const allAirports = await get(`//localhost:3001/icaos`)
+        const {lon,lat} = allAirports.find(a => a.icao === icao)
+        const center = [parseFloat(lon), parseFloat(lat)]
+        const area = turfCircle(center, parseInt(range), {steps: 64, units: 'miles'})
+    
+        allAirports
+            .filter(airport => {
+                const p = turfPoint([parseFloat(airport.lon), parseFloat(airport.lat)])
+                return turfBooleanPointInPolygon(p, area)
+            })
+            .forEach( airport => {
+                airport = {
+                    ...airport,
+                    ...getDirections([lon,lat], [airport.lon, airport.lat])
+                }
+                promises.push( getAirport(airport) )
+            })
+
+        return Promise.all(promises)
+    }
+
+    function getDirections(point1, point2) {
+        
+        return { bearing, distance }
+    }
+
+    async function handleSubmit(event, data) {
+        
+        setLoading(true)
+
+        if ( searchBy === 'range' ) {
+            setAirports( await getAirportsInRange(icao, range) )
+        }
+        else {
+            setSelectedAirport( await getAirport(icao) )
+        }
+
         setLoading(false)
-
-        // icao data
-        // http://localhost:3001/icaos/CZFA
-
-        // icao aircraft
-        // https://server.fseconomy.net/data?userkey=A2333C345F640AE0&format=csv&query=icao&search=aircraft&icao=CZFA
-        
-        // icao FBOs
-        // https://server.fseconomy.net/data?userkey=A2333C345F640AE0&format=csv&query=icao&search=fbo&icao=CZFA
-
     }
 
     return (
     <div className="Airports">
 
-        <Form onSubmit={() => search(icao)}>
+        <Form onSubmit={handleSubmit}>
 
             <Grid columns="equal" >
                 <Grid.Column>
@@ -108,6 +155,7 @@ const Airports = props => {
                             fluid
                             selection
                             options={distances}
+                            value={range}
                             onChange={(ev, data) => setRange(data.value)}
                             />
                     </Grid.Column>
@@ -135,6 +183,19 @@ const Airports = props => {
                 />
 
         </Form>
+
+        { airports &&
+            <FseTable 
+                columns={[
+                    { text: 'ICAO', value: 'icao' },
+                    { text: 'Name', value: 'name' },
+                    { text: 'Dist', value: 'distance', render(d) { return `${d}nm` } },
+                    { text: 'Brg', value: 'bearing', render(b) { return `${b}°` } },
+                ]}
+                data={airports}
+                onItemClick={ item => setSelectedAirport(item)}
+                />
+        }
 
         { selectedAirport && 
             <Airport {...selectedAirport} />
